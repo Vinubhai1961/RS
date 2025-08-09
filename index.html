@@ -64,7 +64,7 @@
       return value === "Yes" ? "Yes" : "No";
     }
 
-    // Initialize table with optimized settings
+    // Initialize table with optimized settings and highlighting
     CsvToHtmlTable.init({
       csv_path: "https://raw.githubusercontent.com/Vinubhai1961/RS/main/Data/rs_stocks.csv",
       element: "table-container",
@@ -72,17 +72,23 @@
       csv_options: { separator: ",", delimiter: '"' },
       datatables_options: {
         paging: true,
-        pageLength: 50, // Increase to 50 rows per page to reduce page switches
+        pageLength: 100, // Increased to 100 rows per page
         ordering: true,
         searching: true,
-        deferRender: true, // Already optimized, but critical
+        deferRender: true,
         destroy: true,
-        serverSide: false, // Client-side for now, but note this
         columnDefs: [
           { targets: [0, 3, 10, 11], type: "num" },
           { targets: [2, 12, 13], type: "num-fmt" },
           { targets: [6, 7, 8, 9], type: "num-fmt" }
-        ]
+        ],
+        createdRow: function(row, data, dataIndex) {
+          // Highlight searched term in Ticker column (index 1)
+          const searchTerm = $('#ticker-search').val().toLowerCase();
+          if (searchTerm && data[1] && data[1].toLowerCase().includes(searchTerm)) {
+            $('td:eq(1)', row).addClass('highlight');
+          }
+        }
       },
       custom_formatting: [
         [2, format_currency],
@@ -105,7 +111,13 @@
       const table = $('#table-container table').DataTable();
       $('#ticker-search').on('keyup', function() {
         const val = $.fn.dataTable.util.escapeRegex($(this).val());
-        table.column(1).search(val ? val : '', false, true).draw();
+        table.column(1).search(val ? val : '', false, true).draw(); // Filter Ticker column
+        // Reapply highlighting after filter
+        table.rows().every(function() {
+          const row = this.node();
+          const data = this.data();
+          $('td:eq(1)', row).toggleClass('highlight', data[1] && data[1].toLowerCase().includes(val.toLowerCase()));
+        });
       });
     });
   </script>
