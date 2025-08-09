@@ -64,7 +64,7 @@
       return value === "Yes" ? "Yes" : "No";
     }
 
-    // Initialize table with external CSV
+    // Initialize table with optimized settings
     CsvToHtmlTable.init({
       csv_path: "https://raw.githubusercontent.com/Vinubhai1961/RS/main/Data/rs_stocks.csv",
       element: "table-container",
@@ -72,11 +72,12 @@
       csv_options: { separator: ",", delimiter: '"' },
       datatables_options: {
         paging: true,
-        pageLength: 25,
+        pageLength: 50, // Increase to 50 rows per page to reduce page switches
         ordering: true,
         searching: true,
-        deferRender: true,
-        destroy: true, // Allow reinitialization
+        deferRender: true, // Already optimized, but critical
+        destroy: true,
+        serverSide: false, // Client-side for now, but note this
         columnDefs: [
           { targets: [0, 3, 10, 11], type: "num" },
           { targets: [2, 12, 13], type: "num-fmt" },
